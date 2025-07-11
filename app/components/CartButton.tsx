@@ -1,15 +1,17 @@
 import { images } from "@/constants";
+import { useCartStore } from "@/store/cart.store";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 const CartButton = () => {
-  const totalItemCount = 10;
+  const { getTotalItems } = useCartStore();
+  const totalItems = getTotalItems();
 
   return (
     <TouchableOpacity className="cart-btn" onPress={() => {}}>
       <Image source={images.bag} className="size-5" resizeMode="contain" />
 
-      {totalItemCount > 0 && (
+      {totalItems > 0 && (
         <View className="cart-badge">
-          <Text className="small-bold text-white">{totalItemCount}</Text>
+          <Text className="small-bold text-white">{totalItems}</Text>
         </View>
       )}
     </TouchableOpacity>

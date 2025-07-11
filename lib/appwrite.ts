@@ -1,4 +1,4 @@
-import { CreateUserParams, SignInParams, GetMenuParams } from "@/type";
+import { CreateUserParams, SignInParams, GetMenuParams, Category } from "@/type";
 import {
   Account,
   Avatars,
@@ -6,6 +6,7 @@ import {
   Databases,
   ID,
   Query,
+  Models,
   Storage,
 } from "react-native-appwrite";
 
@@ -112,25 +113,17 @@ export const getMenu = async ({ category, query }: GetMenuParams) => {
       queries
     );
 
-    if (!menus) throw Error("No menu items found.");
-
     return menus.documents;
   } catch (err) {
     throw new Error(err as string);    
   }
 }
 
-export const getCategories = async () => {
-  try {
-    const categories = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.categoriesCollectionId
-    );
+export const getCategories = async (): Promise<(Models.Document & Category)[]> => {
+  const categories = await databases.listDocuments<Models.Document & Category>(
+    appwriteConfig.databaseId,
+    appwriteConfig.categoriesCollectionId
+  );
 
-    if (!categories) throw Error("No categories found.");
-
-    return categories.documents;
-  } catch (err) {
-    throw new Error(err as string);
-  }
+  return categories.documents;
 };
