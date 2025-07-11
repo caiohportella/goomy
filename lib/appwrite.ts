@@ -1,4 +1,4 @@
-import { CreateUserParams, SignInParams } from "@/type";
+import { CreateUserParams, SignInParams, GetMenuParams } from "@/type";
 import {
   Account,
   Avatars,
@@ -6,6 +6,7 @@ import {
   Databases,
   ID,
   Query,
+  Storage,
 } from "react-native-appwrite";
 
 export const appwriteConfig = {
@@ -13,7 +14,12 @@ export const appwriteConfig = {
   platform: "com.caiohportella.goomy",
   projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!,
   databaseId: "6870433400376a861cc1",
+  bucketId: "6870667500155f6b9bf8",
   userCollectionId: "68704350000fdd34ab13",
+  categoriesCollectionId: "6870622c000e186b16d5",
+  menuCollectionId: "6870628c002decbff7e2",
+  customizationsCollectionId: "687063620025648bbfb6",
+  menuCustomizationsCollectionId: "6870642c000ce433102e",
 };
 
 export const client = new Client();
@@ -25,6 +31,7 @@ client
 
 export const account = new Account(client);
 export const databases = new Databases(client);
+export const storage = new Storage(client);
 const avatars = new Avatars(client);
 
 export const createUser = async ({
@@ -84,5 +91,46 @@ export const getCurrentUser = async () => {
     return currentUser.documents[0];
   } catch (e) {
     throw new Error(e as string);
+  }
+};
+
+export const getMenu = async ({ category, query }: GetMenuParams) => {
+  try {
+    const queries: string[] = [];
+
+    if (category) {
+      queries.push(Query.equal("categories", category));
+    }
+
+    if (query) {
+      queries.push(Query.search("name", query));
+    }
+
+    const menus = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.menuCollectionId,
+      queries
+    );
+
+    if (!menus) throw Error("No menu items found.");
+
+    return menus.documents;
+  } catch (err) {
+    throw new Error(err as string);    
+  }
+}
+
+export const getCategories = async () => {
+  try {
+    const categories = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.categoriesCollectionId
+    );
+
+    if (!categories) throw Error("No categories found.");
+
+    return categories.documents;
+  } catch (err) {
+    throw new Error(err as string);
   }
 };
